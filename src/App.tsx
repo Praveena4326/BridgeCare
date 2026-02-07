@@ -5,6 +5,7 @@ import { ElderDashboard } from "./pages/ElderDashboard"
 import { FamilyDashboard } from "./pages/FamilyDashboard"
 import { MemoryUpload } from "./pages/MemoryUpload"
 import { AboutPage } from "./pages/AboutPage"
+import VoiceChat from "./components/voicechat"
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/family" element={<FamilyDashboard />} />
           <Route path="/memory" element={<MemoryUpload />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/voicechat" element={<VoiceChat />} />
         </Route>
       </Routes>
     </Router>
