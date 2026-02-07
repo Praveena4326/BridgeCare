@@ -1,3 +1,6 @@
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -16,14 +19,19 @@ app.listen(PORT, () => {
   console.log("Backend running on port", PORT);
 });
 
-app.post("/voice/chat", (req, res) => {
-  // later this will accept audio + elderId
-  // for now, just return a predictable dummy response
+app.post("/voice/chat", upload.single("audio"), (req, res) => {
+  const elderId = req.body.elderId;
+  const audioFile = req.file;
+
+  console.log("Elder ID:", elderId);
+  console.log("Audio received:", audioFile ? audioFile.mimetype : "none");
+
   res.json({
     transcript: "dummy transcript",
     detectedLanguage: "en",
-    replyText: "Hi! I’m BridgeCare. I’m here with you!",
+    replyText: "Hi! I’m BridgeCare. I’m here with you.",
     esi: 92,
     explanationForFamily: "Stable today: normal engagement and positive tone.",
   });
 });
+
