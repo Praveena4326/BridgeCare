@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { generateBridgeCareReply } = require("./services/gemini.service");
+const { retrieveMemories } = require("./services/rag.service");
 
 const app = express();
 
@@ -29,17 +30,18 @@ app.post("/voice/chat", async (req, res) => {
   console.log("Elder ID:", elderId);
   console.log("Text received:", text);
 
-  console.log("About to call generateBridgeCareReply...");
+  const memories = retrieveMemories(elderId, text, 3);
+
   try {
     const aiResponse = await generateBridgeCareReply({
       userText: text,
-      memories: [],
+      memories: memories,
     });
 
     res.json({
       transcript: text,
       replyText: aiResponse.replyText,
-      usedMemories: [],
+      usedMemories: memories,
       esi: 92,
       explanationForFamily: aiResponse.explanationForFamily,
       riskLevel: aiResponse.riskLevel,

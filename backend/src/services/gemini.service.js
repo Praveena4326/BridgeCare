@@ -6,11 +6,9 @@
  * @returns {Promise<Object>}
  */
 async function generateBridgeCareReply({ userText, memories }) {
-    console.log("generateBridgeCareReply called with:", { userText });
     const apiKey = process.env.GEMINI_API_KEY;
     const modelId = "gemini-3-flash-preview"; // Confirmed as available
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-    console.log("Calling Gemini URL:", url.replace(apiKey, "REDACTED"));
 
     const prompt = `
     You are "BridgeCare", a compassionate and helpful AI assistant for elderly care.
@@ -21,6 +19,10 @@ async function generateBridgeCareReply({ userText, memories }) {
     2. DO NOT provide medical advice, diagnosis, or medication suggestions.
     3. If the user seems to be at risk (e.g., physical danger, extreme confusion, severe distress), suggest a human check-in or contact with their family.
     4. Provide your output in JSON format only.
+    5. GROUNDING: Use the provided "Memories" to personalize your response if they are relevant to the user's text. 
+       - If a memory helps answer a question or provide comfort (e.g., mentioning family members, pets, or hobbies), use it naturally.
+       - NEVER make up information about the user's family or history. Only use what is explicitly in the memories.
+       - If the memories are not relevant, ignore them and respond normally.
 
     OUTPUT STRUCTURE (JSON):
     {
@@ -32,7 +34,7 @@ async function generateBridgeCareReply({ userText, memories }) {
     }
 
     User text: "${userText}"
-    Memories provided: ${JSON.stringify(memories)}
+    Memories provided (personal grounding data): ${JSON.stringify(memories)}
 
     Return the JSON object now.
   `;

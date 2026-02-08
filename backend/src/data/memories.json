@@ -1,0 +1,122 @@
+[
+    {
+        "elderId": "elder-001",
+        "id": "mem-001",
+        "text": "Your granddaughter Sarah is a doctor in Seattle and she has two cats named Mochi and Yuki.",
+        "tags": [
+            "sarah",
+            "granddaughter",
+            "seattle",
+            "cats",
+            "mochi",
+            "yuki"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-002",
+        "text": "Your favorite music is jazz, especially Miles Davis and John Coltrane.",
+        "tags": [
+            "music",
+            "jazz",
+            "miles davis",
+            "john coltrane",
+            "favorite"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-003",
+        "text": "Your son Michael lives in San Francisco and he loves to go hiking on weekends.",
+        "tags": [
+            "michael",
+            "son",
+            "san francisco",
+            "hiking"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-004",
+        "text": "You always have a cup of chamomile tea every evening at 8 PM before bed.",
+        "tags": [
+            "tea",
+            "chamomile",
+            "routine",
+            "evening",
+            "sleep"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-005",
+        "text": "Your late husband John was an architect who loved classical Italian furniture.",
+        "tags": [
+            "john",
+            "husband",
+            "architect",
+            "italian",
+            "furniture"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-006",
+        "text": "You worked as a librarian for 30 years and you still love reading mystery novels.",
+        "tags": [
+            "work",
+            "librarian",
+            "books",
+            "reading",
+            "mystery"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-007",
+        "text": "Your favorite food is homemade lasagna, especially the way Michael makes it.",
+        "tags": [
+            "food",
+            "lasagna",
+            "favorite",
+            "michael",
+            "eating"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-008",
+        "text": "You have a weekly bridge game with your friends Martha and Clara on Tuesday afternoons.",
+        "tags": [
+            "bridge",
+            "game",
+            "friends",
+            "martha",
+            "clara",
+            "tuesday",
+            "social"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-009",
+        "text": "You love gardening and you have a beautiful rose garden in your backyard.",
+        "tags": [
+            "gardening",
+            "roses",
+            "backyard",
+            "hobby"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-010",
+        "text": "Your dog Buster was a golden retriever who loved playing catch with a tennis ball.",
+        "tags": [
+            "dog",
+            "buster",
+            "pet",
+            "golden retriever"
+        ]
+    }
+]
