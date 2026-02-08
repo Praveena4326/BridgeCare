@@ -3,6 +3,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const { generateBridgeCareReply } = require("./services/gemini.service");
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.listen(PORT, () => {
   console.log("Backend running on port", PORT);
 });
 
-app.post("/voice/chat", (req, res) => {
+app.post("/voice/chat", async (req, res) => {
   const { elderId, text } = req.body;
 
   if (!elderId || !text) {
@@ -28,13 +29,34 @@ app.post("/voice/chat", (req, res) => {
   console.log("Elder ID:", elderId);
   console.log("Text received:", text);
 
-  res.json({
-    transcript: text,
-    replyText: "Hi! I’m BridgeCare. I’m here with you. 💛",
-    usedMemories: [],
-    esi: 92,
-    explanationForFamily: "Stable today: normal engagement and positive tone.",
-    riskLevel: "low",
-  });
+  console.log("About to call generateBridgeCareReply...");
+  try {
+    const aiResponse = await generateBridgeCareReply({
+      userText: text,
+      memories: [],
+    });
+
+    res.json({
+      transcript: text,
+      replyText: aiResponse.replyText,
+      usedMemories: [],
+      esi: 92,
+      explanationForFamily: aiResponse.explanationForFamily,
+      riskLevel: aiResponse.riskLevel,
+    });
+  } catch (error) {
+    console.error("Error generating AI reply:", error);
+
+    // Fallback response as per requirements
+    res.json({
+      transcript: text,
+      replyText:
+        "Hi, I’m BridgeCare. I’m here with you. Would you like to tell me more?",
+      usedMemories: [],
+      esi: 92,
+      explanationForFamily: "System fallback: no abnormal signals detected.",
+      riskLevel: "low",
+    });
+  }
 });
 
