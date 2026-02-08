@@ -1,0 +1,140 @@
+[
+  {
+    "elderId": "elder-001",
+    "id": "mem-001",
+    "text": "Your daughter Meera usually calls you every Sunday evening.",
+    "tags": [
+      "daughter",
+      "family",
+      "call"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-002",
+    "text": "You like listening to old Tamil songs in the morning.",
+    "tags": [
+      "music",
+      "tamil",
+      "routine"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-003",
+    "text": "You enjoy filter coffee after breakfast every day.",
+    "tags": [
+      "coffee",
+      "routine",
+      "food"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-004",
+    "text": "Your granddaughter is studying at university.",
+    "tags": [
+      "granddaughter",
+      "family"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-005",
+    "text": "You used to go to the temple every Friday.",
+    "tags": [
+      "temple",
+      "routine",
+      "spiritual"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-006",
+    "text": "Your son Ravi lives in Toronto.",
+    "tags": [
+      "son",
+      "family"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-007",
+    "text": "You love making dosa on Sunday mornings.",
+    "tags": [
+      "food",
+      "routine"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-008",
+    "text": "Your daughter Meera visited you last summer.",
+    "tags": [
+      "daughter",
+      "family",
+      "visit"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-009",
+    "text": "You enjoy watching old family photos in the afternoon.",
+    "tags": [
+      "family",
+      "photos"
+    ]
+  },
+  {
+    "elderId": "elder-001",
+    "id": "mem-010",
+    "text": "You and your daughter used to cook together on weekends.",
+    "tags": [
+      "daughter",
+      "family",
+      "cooking"
+    ]
+  },
+  {
+    "id": 1770568260369.768,
+    "elderId": "elder-001",
+    "title": "Medications",
+    "content": "The user takes medications.",
+    "date": "2024-07-30"
+  },
+  {
+    "id": 1770568277278.1814,
+    "elderId": "elder-001",
+    "title": "User's Daughter",
+    "content": "The user has a daughter.",
+    "date": "2024-05-15"
+  },
+  {
+    "id": "mem-1770568748844-991",
+    "elderId": "elder-001",
+    "text": "The user's name is Harish.",
+    "tags": [
+      "auto-extracted",
+      "user's-name"
+    ],
+    "date": "2024-07-29"
+  },
+  {
+    "id": "mem-1770570346410-970",
+    "elderId": "elder-001",
+    "text": "The user's birthday is today.",
+    "tags": [
+      "auto-extracted",
+      "birthday"
+    ],
+    "date": "2024-05-15"
+  },
+  {
+    "title": "My name",
+    "date": "2026-02-08",
+    "content": "My name is Uddrity",
+    "id": 1770571411776,
+    "elderId": "elder-001",
+    "text": "My name is Uddrity"
+  }
+]
