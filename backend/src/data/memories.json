@@ -118,5 +118,15 @@
       "user's-name"
     ],
     "date": "2024-07-29"
+  },
+  {
+    "id": "mem-1770570346410-970",
+    "elderId": "elder-001",
+    "text": "The user's birthday is today.",
+    "tags": [
+      "auto-extracted",
+      "birthday"
+    ],
+    "date": "2024-05-15"
   }
 ]

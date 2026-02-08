@@ -1,15 +1,65 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// List of models to try in order of preference
+// "gemini-2.5-flash" might be a typo for 2.0-flash or a specific preview, 
+// using standard identifiers + 2.0-flash-exp
+const MODELS = [
+    "gemini-2.0-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash-tts",
+    "gemma-3-12b",
+    "gemini-embedding-1",
+    "gemini-1.5-pro"
+];
+
 /**
- * Generates a real AI response using Gemini 3.0 Flash via REST API.
- * @param {Object} params
- * @param {string} params.userText - The user's input text.
- * @param {Array} params.memories - Grounding memories retrieved for the elder.
- * @returns {Promise<Object>}
+ * Helper to call Gemini with fallback support
+ * @param {Object} payload - The JSON payload for the REST API
+ * @param {string} actionName - Name of the action for logging
+ * @returns {Promise<Object>} - The API response JSON
+ */
+async function callGeminiWithFallback(payload, actionName) {
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    for (const modelId of MODELS) {
+        try {
+            console.log(`🚀 [${actionName}] Trying model: ${modelId}`);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.status === 404) {
+                console.warn(`⚠️ Model ${modelId} not found (404). Skipping.`);
+                continue;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                // If rate limited (429) or overloaded (503), try next
+                console.warn(`⚠️ [${actionName}] ${modelId} failed (${response.status}):`, errorData.error?.message || response.statusText);
+                continue;
+            }
+
+            const result = await response.json();
+            console.log(`✅ [${actionName}] Success with ${modelId}`);
+            return result; // Success!
+
+        } catch (error) {
+            console.warn(`❌ [${actionName}] Error with ${modelId}:`, error.message);
+            // Continue to next model
+        }
+    }
+    throw new Error(`All models failed for ${actionName}. Please check your API key and quotas.`);
+}
+
+/**
+ * Generates a real AI response using Gemini with fallback.
  */
 async function generateBridgeCareReply({ userText, memories }) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    const modelId = "gemini-2.5-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-
     const prompt = `
     You are "BridgeCare", a compassionate, patient, and helpful AI assistant designed specifically for elderly care.
     Your goal is to provide genuine companionship, support, and a sense of being understood.
@@ -43,11 +93,7 @@ async function generateBridgeCareReply({ userText, memories }) {
   `;
 
     const payload = {
-        contents: [
-            {
-                parts: [{ text: prompt }],
-            },
-        ],
+        contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
             temperature: 0.3,
             responseMimeType: "application/json",
@@ -55,38 +101,27 @@ async function generateBridgeCareReply({ userText, memories }) {
     };
 
     try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
+        const result = await callGeminiWithFallback(payload, "generateBridgeCareReply");
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Gemini API Error (${response.status}): ${JSON.stringify(errorData)}`);
+        // Safety check for candidates
+        if (!result.candidates || result.candidates.length === 0) {
+            throw new Error("No candidates returned from Gemini");
         }
 
-        const result = await response.json();
         const text = result.candidates[0].content.parts[0].text;
-        return JSON.parse(text);
+        // Clean markdown code blocks if present
+        const cleanedText = text.replace(/```json\n?|\n?```/g, "").trim();
+        return JSON.parse(cleanedText);
     } catch (error) {
-        console.error("Gemini Service Error:", error.message);
+        console.error("Final Gemini Service Error:", error.message);
         throw error;
     }
 }
 
 /**
  * Extracts new memories/facts from the user's text.
- * @param {string} userText
- * @returns {Promise<Array<Object>>}
  */
 async function extractMemories(userText) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    const modelId = "gemini-2.5-flash"; // Use a fast model for this
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-
     const prompt = `
     You are a helpful assistant that extracts personal facts and memories from text.
     Analyze the following USER INPUT and extract any new, permanent facts about the user's life, preferences, family, or history.
@@ -121,17 +156,13 @@ async function extractMemories(userText) {
     };
 
     try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) return [];
-
-        const result = await response.json();
+        const result = await callGeminiWithFallback(payload, "extractMemories");
+        if (!result.candidates || result.candidates.length === 0) {
+            return [];
+        }
         const text = result.candidates[0].content.parts[0].text;
-        return JSON.parse(text);
+        const cleanedText = text.replace(/```json\n?|\n?```/g, "").trim();
+        return JSON.parse(cleanedText);
     } catch (error) {
         console.error("Memory Extraction Error:", error.message);
         return [];
