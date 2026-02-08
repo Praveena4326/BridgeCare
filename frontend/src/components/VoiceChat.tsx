@@ -79,6 +79,12 @@ export default function VoiceChat() {
     const sendToBackend = async () => {
         if (!transcript) return;
 
+        // Stop listening if active
+        if (isListening && recognitionRef.current) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        }
+
         setLoading(true);
         try {
             const res = await fetch("http://127.0.0.1:3000/voice/chat", {
@@ -93,6 +99,7 @@ export default function VoiceChat() {
             const data: ApiResponse = await res.json();
             setReplyText(data.replyText);
             speak(data.replyText);
+            setTranscript(""); // Clear input after sending
         } catch (err) {
             console.log(err);
             alert("Backend call failed 😭");

@@ -21,14 +21,7 @@ interface Message {
 }
 
 export function ElderDashboard() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 1,
-            text: "Good morning, Martha! How are you feeling today?",
-            sender: "ai",
-            timestamp: new Date(),
-        },
-    ])
+    const [messages, setMessages] = useState<Message[]>([])
     const [inputValue, setInputValue] = useState("")
     const [isListening, setIsListening] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -47,6 +40,13 @@ export function ElderDashboard() {
 
         setMessages((prev) => [...prev, newMessage])
         setInputValue("")
+
+        // Stop listening if active
+        if (isListening && recognitionRef.current) {
+            recognitionRef.current.stop()
+            setIsListening(false)
+        }
+
         setIsLoading(true)
 
         try {
@@ -121,6 +121,31 @@ export function ElderDashboard() {
 
             recognitionRef.current = recognition
         }
+    }, [])
+
+    // --- Initial AI Greeting ---
+    useEffect(() => {
+        const fetchInitialGreeting = async () => {
+            setIsLoading(true)
+            try {
+                // Special internal trigger for initial greeting
+                const data: VoiceChatResponse = await api.sendVoiceChat("elder-001", "Please greet Martha warmly to start the day.")
+
+                const aiResponse: Message = {
+                    id: Date.now(),
+                    text: data.replyText,
+                    sender: "ai",
+                    timestamp: new Date(),
+                }
+                setMessages([aiResponse])
+            } catch (error) {
+                console.error("Failed to get initial greeting:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchInitialGreeting()
     }, [])
 
     const toggleListening = async () => {
