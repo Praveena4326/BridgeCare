@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/Button"
-import { Heart, Menu, X } from "lucide-react"
+import { Heart, Menu, X, Home, Users, BookOpen, Info, LogOut } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -32,22 +32,34 @@ export function Navbar() {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex md:items-center md:space-x-1">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                to={link.href}
-                                className={cn(
-                                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isActive(link.href)
-                                        ? "bg-primary-50 text-primary-700"
-                                        : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                                )}
-                            >
-                                {link.name}
+                        <Link to="/family" className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors">
+                            <Home className="h-4 w-4" />
+                            <span>Overview</span>
+                        </Link>
+                        <Link to="/family/elder" className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors">
+                            <Heart className="h-4 w-4" />
+                            <span>Elder View</span>
+                        </Link>
+                        <Link to="/family/team" className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors">
+                            <Users className="h-4 w-4" />
+                            <span>Care Team</span>
+                        </Link>
+                        <Link to="/memory" className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors">
+                            <BookOpen className="h-4 w-4" />
+                            <span>Memories</span>
+                        </Link>
+                        <Link to="/family/settings" className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 rounded-lg hover:bg-neutral-50 transition-colors">
+                            <Info className="h-4 w-4" />
+                            <span>Settings</span>
+                        </Link>
+                        <div className="ml-2 pl-2 border-l border-neutral-200 flex items-center space-x-2">
+                            <Link to="/elder" className="text-sm font-medium text-primary-600 hover:text-primary-700">
+                                Elder Demo
                             </Link>
-                        ))}
-                        <div className="ml-4 pl-4 border-l border-neutral-200">
-                            <Button size="sm" variant="primary">Get Started</Button>
+                            <Button variant="ghost" size="sm" className="text-neutral-500 hover:text-red-600 hover:bg-red-50">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign Out
+                            </Button>
                         </div>
                     </div>
 
@@ -75,23 +87,35 @@ export function Navbar() {
                         className="md:hidden border-t border-neutral-200 bg-white overflow-hidden"
                     >
                         <div className="flex flex-col space-y-1 p-4">
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.name}
-                                    to={link.href}
-                                    onClick={() => setIsOpen(false)}
-                                    className={cn(
-                                        "px-4 py-3 text-base font-medium rounded-xl transition-colors",
-                                        isActive(link.href)
-                                            ? "bg-primary-50 text-primary-700"
-                                            : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-                                    )}
-                                >
-                                    {link.name}
+                            <Link to="/family" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-colors">
+                                <Home className="h-5 w-5" />
+                                <span>Overview</span>
+                            </Link>
+                            <Link to="/family/elder" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-colors">
+                                <Heart className="h-5 w-5" />
+                                <span>Elder View</span>
+                            </Link>
+                            <Link to="/family/team" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-colors">
+                                <Users className="h-5 w-5" />
+                                <span>Care Team</span>
+                            </Link>
+                            <Link to="/memory" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-colors">
+                                <BookOpen className="h-5 w-5" />
+                                <span>Memories</span>
+                            </Link>
+                            <Link to="/family/settings" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-colors">
+                                <Info className="h-5 w-5" />
+                                <span>Settings</span>
+                            </Link>
+
+                            <div className="pt-4 mt-2 border-t border-neutral-100 space-y-2">
+                                <Link to="/elder" onClick={() => setIsOpen(false)} className="flex items-center justify-center space-x-2 px-4 py-3 text-base font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-colors w-full">
+                                    <span>Elder Dashboard Demo</span>
                                 </Link>
-                            ))}
-                            <div className="pt-4 mt-2 border-t border-neutral-100">
-                                <Button className="w-full" size="lg">Get Started</Button>
+                                <Button variant="ghost" size="lg" className="w-full justify-start text-neutral-600 hover:text-red-600 hover:bg-red-50">
+                                    <LogOut className="mr-2 h-5 w-5" />
+                                    Sign Out
+                                </Button>
                             </div>
                         </div>
                     </motion.div>

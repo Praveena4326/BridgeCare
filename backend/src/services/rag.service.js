@@ -65,7 +65,77 @@ function addMemory(memory) {
     }
 }
 
+/**
+ * Retrieves all memories for a specific elder (for management).
+ * @param {string} elderId 
+ * @returns {Array} List of memories
+ */
+function getAllMemories(elderId) {
+    try {
+        if (!fs.existsSync(MEMORIES_PATH)) return [];
+        const data = fs.readFileSync(MEMORIES_PATH, 'utf-8');
+        const memories = JSON.parse(data);
+        const effectiveElderId = elderId || "elder-001";
+        // Return latest first
+        return memories.filter(m => m.elderId === effectiveElderId).reverse();
+    } catch (error) {
+        console.error("Error getting all memories:", error);
+        return [];
+    }
+}
+
+/**
+ * Updates a memory by ID.
+ * @param {string|number} id - Memory ID
+ * @param {Object} updates - Fields to update
+ * @returns {Object|null} Updated memory or null if not found
+ */
+function updateMemory(id, updates) {
+    try {
+        if (!fs.existsSync(MEMORIES_PATH)) return null;
+        let memories = JSON.parse(fs.readFileSync(MEMORIES_PATH, 'utf-8'));
+
+        const index = memories.findIndex(m => m.id == id); // Loose equality for string/number IDs
+        if (index === -1) return null;
+
+        memories[index] = { ...memories[index], ...updates };
+        fs.writeFileSync(MEMORIES_PATH, JSON.stringify(memories, null, 2), 'utf-8');
+        console.log("✅ Memory updated:", id);
+        return memories[index];
+    } catch (error) {
+        console.error("Error updating memory:", error);
+        return null;
+    }
+}
+
+/**
+ * Deletes a memory by ID.
+ * @param {string|number} id 
+ * @returns {boolean} True if deleted
+ */
+function deleteMemory(id) {
+    try {
+        if (!fs.existsSync(MEMORIES_PATH)) return false;
+        let memories = JSON.parse(fs.readFileSync(MEMORIES_PATH, 'utf-8'));
+
+        const initialLength = memories.length;
+        memories = memories.filter(m => m.id != id); // Loose equality
+
+        if (memories.length === initialLength) return false;
+
+        fs.writeFileSync(MEMORIES_PATH, JSON.stringify(memories, null, 2), 'utf-8');
+        console.log("✅ Memory deleted:", id);
+        return true;
+    } catch (error) {
+        console.error("Error deleting memory:", error);
+        return false;
+    }
+}
+
 module.exports = {
     retrieveMemories,
-    addMemory
+    addMemory,
+    getAllMemories,
+    updateMemory,
+    deleteMemory
 };

@@ -16,6 +16,7 @@ export interface Memory {
     content: string;
     image?: string;
     elderId?: string;
+    text?: string;
 }
 
 export interface FamilyDashboardData {
@@ -56,6 +57,32 @@ export const api = {
     async getFamilyData(elderId: string): Promise<FamilyDashboardData> {
         const response = await fetch(`${API_BASE_URL}/family/dashboard/${elderId}`);
         if (!response.ok) throw new Error("Failed to fetch family data");
+        return response.json();
+    },
+
+    async getMemories(elderId: string): Promise<Memory[]> {
+        const response = await fetch(`${API_BASE_URL}/memories?elderId=${elderId}`);
+        if (!response.ok) throw new Error("Failed to fetch memories");
+        return response.json();
+    },
+
+    async updateMemory(id: number | string, updates: Partial<Memory>): Promise<{ status: string; memory: Memory }> {
+        const response = await fetch(`${API_BASE_URL}/memories/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updates),
+        });
+        if (!response.ok) throw new Error("Failed to update memory");
+        return response.json();
+    },
+
+    async deleteMemory(id: number | string): Promise<{ status: string }> {
+        const response = await fetch(`${API_BASE_URL}/memories/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Failed to delete memory");
         return response.json();
     }
 };

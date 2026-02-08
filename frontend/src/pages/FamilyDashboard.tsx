@@ -1,4 +1,3 @@
-import { Sidebar } from "../components/layout/Sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/Card"
 import { Button } from "../components/ui/Button"
 import { AlertTriangle, CheckCircle, Smartphone, Clock } from "lucide-react"
@@ -37,11 +36,7 @@ export function FamilyDashboard() {
     if (!dashboardData) return <div className="p-8">Failed to load dashboard data.</div>
 
     return (
-        <div className="flex bg-neutral-50 h-[calc(100vh-64px)]">
-            <div className="hidden md:block h-full">
-                <Sidebar />
-            </div>
-
+        <div className="bg-neutral-50 min-h-[calc(100vh-64px)]">
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="mx-auto max-w-5xl space-y-8">
                     <div className="flex items-center justify-between">

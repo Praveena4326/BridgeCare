@@ -1,0 +1,14 @@
+{
+    "name": "bridgecare-root",
+    "version": "1.0.0",
+    "description": "Root script manager for BridgeCare",
+    "scripts": {
+        "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+        "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+        "build": "cd frontend && npm run build",
+        "start": "concurrently \"npm run preview --prefix frontend\" \"npm run start --prefix backend\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
+}

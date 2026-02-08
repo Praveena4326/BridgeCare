@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { generateBridgeCareReply, extractMemories } = require("./services/gemini.service");
-const { retrieveMemories, addMemory } = require("./services/rag.service");
+const { retrieveMemories, addMemory, getAllMemories, updateMemory, deleteMemory } = require("./services/rag.service");
 
 const app = express();
 
@@ -89,21 +89,52 @@ app.post("/voice/chat", async (req, res) => {
   }
 });
 
+// --- Memory Management Endpoints ---
+
+app.get("/memories", (req, res) => {
+  const { elderId } = req.query;
+  const memories = getAllMemories(elderId);
+  res.json(memories);
+});
+
 app.post("/memories", (req, res) => {
   const memory = req.body;
-  if (!memory || !memory.title || !memory.content) {
+  if (!memory || (!memory.text && !memory.content)) {
     return res.status(400).json({ error: "Invalid memory format" });
   }
 
   // Add ID if missing
   if (!memory.id) memory.id = Date.now();
   if (!memory.elderId) memory.elderId = "elder-001"; // Default for hackathon
+  // Ensure text field exists if content provided
+  if (!memory.text && memory.content) memory.text = memory.content;
 
   const success = addMemory(memory);
   if (success) {
     res.json({ status: "success", memory });
   } else {
     res.status(500).json({ error: "Failed to add memory" });
+  }
+});
+
+app.put("/memories/:id", (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const updatedMemory = updateMemory(id, updates);
+  if (updatedMemory) {
+    res.json({ status: "success", memory: updatedMemory });
+  } else {
+    res.status(404).json({ error: "Memory not found" });
+  }
+});
+
+app.delete("/memories/:id", (req, res) => {
+  const { id } = req.params;
+  const success = deleteMemory(id);
+  if (success) {
+    res.json({ status: "success" });
+  } else {
+    res.status(404).json({ error: "Memory not found" });
   }
 });
 
