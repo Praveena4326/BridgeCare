@@ -30,6 +30,7 @@ app.post("/voice/chat", async (req, res) => {
 
   // Retrieve relevant memories for grounding
   const memories = retrieveMemories(elderId, text, 3);
+  console.log("retrieveMemories returned:", memories, "type:", Array.isArray(memories), "length:", memories.length);
 
   try {
     const aiResponse = await generateBridgeCareReply({
@@ -40,7 +41,7 @@ app.post("/voice/chat", async (req, res) => {
     res.json({
       transcript: text,
       replyText: aiResponse.replyText,
-      usedMemories: memories, // Always return as an array
+      usedMemories: memories, // Always an array
       esi: 92,
       explanationForFamily: aiResponse.explanationForFamily,
       riskLevel: aiResponse.riskLevel,

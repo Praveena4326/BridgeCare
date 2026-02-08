@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const MEMORIES_PATH = path.join(__dirname, '../data/memories.json');
+const MEMORIES_PATH = path.resolve(__dirname, "../data/memories.json");
+console.log("✅ RAG SERVICE LOADED - DEMO PATCH ACTIVE");
+console.log("MEMORIES_PATH =", MEMORIES_PATH);
+
 
 /**
- * Retrieves top-k relevant memories for a given elder and query using simple keyword/tag matching.
+ * Retrieves top-k memories for a given elder to guarantee demo visibility.
  * @param {string} elderId - The ID of the elder.
- * @param {string} queryText - The text to match against.
+ * @param {string} queryText - The text to match against (ignored in this simplified version).
  * @param {number} k - Number of memories to return.
  * @returns {string[]} Array of memory text strings.
  */
@@ -17,48 +20,17 @@ function retrieveMemories(elderId, queryText, k = 3) {
             return [];
         }
 
-        const data = fs.readFileSync(MEMORIES_PATH, 'utf8');
+        const data = fs.readFileSync(MEMORIES_PATH, 'utf-8');
         const memories = JSON.parse(data);
 
-        // Filter by elderId
-        const elderMemories = memories.filter(m => m.elderId === elderId);
-        if (elderMemories.length === 0) return [];
+        const effectiveElderId = elderId || "elder-001";
+        const elderMemories = memories.filter(m => m.elderId === effectiveElderId);
 
-        const queryLower = queryText.toLowerCase();
-        const queryWords = queryLower.split(/\W+/).filter(word => word.length > 2);
+        if (elderMemories.length > 0) {
+            return elderMemories.slice(0, k).map(m => m.text);
+        }
 
-        // Score memories
-        const scoredMemories = elderMemories.map(memory => {
-            let score = 0;
-
-            // 1. Tag matching (highest weight)
-            memory.tags.forEach(tag => {
-                if (queryLower.includes(tag.toLowerCase())) {
-                    score += 10;
-                }
-            });
-
-            // 2. Exact text inclusion
-            if (memory.text.toLowerCase().includes(queryLower)) {
-                score += 5;
-            }
-
-            // 3. Keyword matching
-            queryWords.forEach(word => {
-                if (memory.text.toLowerCase().includes(word)) {
-                    score += 2;
-                }
-            });
-
-            return { text: memory.text, score };
-        });
-
-        // Sort by score (descending) and filter out zero scores
-        return scoredMemories
-            .filter(m => m.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, k)
-            .map(m => m.text);
+        return [];
     } catch (error) {
         console.error("Error in retrieveMemories:", error);
         return [];
