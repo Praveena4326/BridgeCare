@@ -2,41 +2,44 @@
  * Generates a real AI response using Gemini 3.0 Flash via REST API.
  * @param {Object} params
  * @param {string} params.userText - The user's input text.
- * @param {Array} params.memories - Previous conversation context.
+ * @param {Array} params.memories - Grounding memories retrieved for the elder.
  * @returns {Promise<Object>}
  */
 async function generateBridgeCareReply({ userText, memories }) {
     const apiKey = process.env.GEMINI_API_KEY;
-    const modelId = "gemini-3-flash-preview"; // Confirmed as available
+    const modelId = "gemini-3-flash-preview";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
 
     const prompt = `
-    You are "BridgeCare", a compassionate and helpful AI assistant for elderly care.
-    Your goal is to provide companionship and support.
+    You are "BridgeCare", a compassionate, patient, and helpful AI assistant designed specifically for elderly care.
+    Your goal is to provide genuine companionship, support, and a sense of being understood.
+
+    GROUNDING CONTEXT (Memories):
+    The following are specific, real-life memories or preferences belonging to the user:
+    ${memories.length > 0 ? JSON.stringify(memories) : "No specific memories available for this query."}
 
     CONSTRAINTS:
-    1. Identify yourself as BridgeCare and as an AI assistant.
-    2. DO NOT provide medical advice, diagnosis, or medication suggestions.
-    3. If the user seems to be at risk (e.g., physical danger, extreme confusion, severe distress), suggest a human check-in or contact with their family.
-    4. Provide your output in JSON format only.
-    5. GROUNDING: Use the provided "Memories" to personalize your response if they are relevant to the user's text. 
-       - If a memory helps answer a question or provide comfort (e.g., mentioning family members, pets, or hobbies), use it naturally.
-       - NEVER make up information about the user's family or history. Only use what is explicitly in the memories.
-       - If the memories are not relevant, ignore them and respond normally.
+    1. Identity: Always identify as BridgeCare and as an AI assistant if asked.
+    2. Medical Safety: DO NOT provide any medical advice, diagnoses, or medication recommendations.
+    3. Emergency Protocol: If the user expresses physical danger, extreme confusion, or severe emotional distress, gently suggest they check in with a human caregiver or family member.
+    4. Memory Usage: 
+       - ONLY reference the provided "Memories" if they are directly relevant to the user's current text.
+       - Use memories naturally to provide comfort or answer questions (e.g., mentioning family names like Sarah or Michael).
+       - DO NOT invent, hallucinate, or assume any facts about the user's life that are not explicitly stated in the "Memories" section above.
+    5. Formatting: Output MUST be a valid JSON object only.
 
     OUTPUT STRUCTURE (JSON):
     {
-      "replyText": "The actual response to the user",
-      "sentiment": number (between 0 and 100, where 100 is very positive),
-      "riskFlags": string[] (list of potential risks identified, or empty array),
-      "explanationForFamily": "A brief, professional note to the family about the user's state",
+      "replyText": "The warm, conversational response to the user",
+      "sentiment": number (0-100, where 100 is very positive),
+      "riskFlags": string[] (any safety concerns identified, otherwise empty),
+      "explanationForFamily": "A brief note summarizing the user's state for their family",
       "riskLevel": "low" | "medium" | "high"
     }
 
-    User text: "${userText}"
-    Memories provided (personal grounding data): ${JSON.stringify(memories)}
+    USER INPUT: "${userText}"
 
-    Return the JSON object now.
+    Provide the JSON response now:
   `;
 
     const payload = {
@@ -62,15 +65,10 @@ async function generateBridgeCareReply({ userText, memories }) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(
-                `Gemini API Error (${response.status}): ${JSON.stringify(errorData)}`
-            );
+            throw new Error(`Gemini API Error (${response.status}): ${JSON.stringify(errorData)}`);
         }
 
         const result = await response.json();
-
-        // The output from Gemini with responseMimeType: "application/json"
-        // will be in result.candidates[0].content.parts[0].text
         const text = result.candidates[0].content.parts[0].text;
         return JSON.parse(text);
     } catch (error) {

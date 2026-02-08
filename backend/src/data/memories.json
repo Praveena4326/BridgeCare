@@ -2,121 +2,135 @@
     {
         "elderId": "elder-001",
         "id": "mem-001",
-        "text": "Your granddaughter Sarah is a doctor in Seattle and she has two cats named Mochi and Yuki.",
+        "text": "Your granddaughter Sarah is a dedicated pediatric surgeon living in Seattle. She recently adopted two fluffy cats named Mochi and Yuki.",
         "tags": [
             "sarah",
             "granddaughter",
             "seattle",
+            "doctor",
             "cats",
             "mochi",
-            "yuki"
+            "yuki",
+            "family"
         ]
     },
     {
         "elderId": "elder-001",
         "id": "mem-002",
-        "text": "Your favorite music is jazz, especially Miles Davis and John Coltrane.",
+        "text": "You have a deep love for classic jazz. Your favorite records are 'Kind of Blue' by Miles Davis and 'A Love Supreme' by John Coltrane.",
         "tags": [
             "music",
             "jazz",
             "miles davis",
             "john coltrane",
-            "favorite"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-003",
-        "text": "Your son Michael lives in San Francisco and he loves to go hiking on weekends.",
-        "tags": [
-            "michael",
-            "son",
-            "san francisco",
-            "hiking"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-004",
-        "text": "You always have a cup of chamomile tea every evening at 8 PM before bed.",
-        "tags": [
-            "tea",
-            "chamomile",
-            "routine",
-            "evening",
-            "sleep"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-005",
-        "text": "Your late husband John was an architect who loved classical Italian furniture.",
-        "tags": [
-            "john",
-            "husband",
-            "architect",
-            "italian",
-            "furniture"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-006",
-        "text": "You worked as a librarian for 30 years and you still love reading mystery novels.",
-        "tags": [
-            "work",
-            "librarian",
-            "books",
-            "reading",
-            "mystery"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-007",
-        "text": "Your favorite food is homemade lasagna, especially the way Michael makes it.",
-        "tags": [
-            "food",
-            "lasagna",
             "favorite",
-            "michael",
-            "eating"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-008",
-        "text": "You have a weekly bridge game with your friends Martha and Clara on Tuesday afternoons.",
-        "tags": [
-            "bridge",
-            "game",
-            "friends",
-            "martha",
-            "clara",
-            "tuesday",
-            "social"
-        ]
-    },
-    {
-        "elderId": "elder-001",
-        "id": "mem-009",
-        "text": "You love gardening and you have a beautiful rose garden in your backyard.",
-        "tags": [
-            "gardening",
-            "roses",
-            "backyard",
             "hobby"
         ]
     },
     {
         "elderId": "elder-001",
-        "id": "mem-010",
-        "text": "Your dog Buster was a golden retriever who loved playing catch with a tennis ball.",
+        "id": "mem-003",
+        "text": "Your son Michael lives in San Francisco with his wife Elena. They both love weekend hiking trips in Marin County.",
         "tags": [
-            "dog",
-            "buster",
-            "pet",
-            "golden retriever"
+            "michael",
+            "son",
+            "san francisco",
+            "elena",
+            "hiking",
+            "family"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-004",
+        "text": "Every evening at 8:00 PM, you enjoy a warm cup of organic chamomile tea. It helps you relax before reading your mystery novels.",
+        "tags": [
+            "tea",
+            "chamomile",
+            "routine",
+            "evening",
+            "relax",
+            "habit"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-005",
+        "text": "A very happy memory for you is the summer of 1985, when your whole family stayed in a small cottage on the coast of Maine for a month.",
+        "tags": [
+            "maine",
+            "summer",
+            "1985",
+            "vacation",
+            "happy event",
+            "cottage",
+            "family"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-006",
+        "text": "Your late husband John was a talented architect. He designed your current home and always appreciated clean, modern Italian furniture lines.",
+        "tags": [
+            "john",
+            "husband",
+            "architect",
+            "home",
+            "furniture",
+            "love",
+            "memory"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-007",
+        "text": "You worked as a head librarian at the city library for 32 years. You still find great comfort in the smell of old books.",
+        "tags": [
+            "work",
+            "librarian",
+            "library",
+            "books",
+            "comfort",
+            "career"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-008",
+        "text": "You prefer your coffee black with just a tiny pinch of cinnamon. It's a small preference Michael remembers every time he visits.",
+        "tags": [
+            "coffee",
+            "preference",
+            "cinnamon",
+            "michael",
+            "taste"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-009",
+        "text": "Every Tuesday afternoon at 2:00 PM, your friends Martha and Clara come over for a lively game of Bridge.",
+        "tags": [
+            "bridge",
+            "tuesday",
+            "friends",
+            "martha",
+            "clara",
+            "game",
+            "social",
+            "routine"
+        ]
+    },
+    {
+        "elderId": "elder-001",
+        "id": "mem-010",
+        "text": "Your favorite meal is a slow-cooked beef bourguignon, a recipe you've perfected over four decades.",
+        "tags": [
+            "food",
+            "beef bourguignon",
+            "cooking",
+            "favorite",
+            "recipe"
         ]
     }
 ]
