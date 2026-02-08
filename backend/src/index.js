@@ -1,5 +1,4 @@
-const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
+
 
 const express = require("express");
 const cors = require("cors");
@@ -19,19 +18,23 @@ app.listen(PORT, () => {
   console.log("Backend running on port", PORT);
 });
 
-app.post("/voice/chat", upload.single("audio"), (req, res) => {
-  const elderId = req.body.elderId;
-  const audioFile = req.file;
+app.post("/voice/chat", (req, res) => {
+  const { elderId, text } = req.body;
+
+  if (!elderId || !text) {
+    return res.status(400).json({ error: "elderId and text are required" });
+  }
 
   console.log("Elder ID:", elderId);
-  console.log("Audio received:", audioFile ? audioFile.mimetype : "none");
+  console.log("Text received:", text);
 
   res.json({
-    transcript: "dummy transcript",
-    detectedLanguage: "en",
-    replyText: "Hi! I’m BridgeCare. I’m here with you.",
+    transcript: text,
+    replyText: "Hi! I’m BridgeCare. I’m here with you. 💛",
+    usedMemories: [],
     esi: 92,
     explanationForFamily: "Stable today: normal engagement and positive tone.",
+    riskLevel: "low",
   });
 });
 
