@@ -13,7 +13,7 @@ console.log("MEMORIES_PATH =", MEMORIES_PATH);
  * @param {number} k - Number of memories to return.
  * @returns {string[]} Array of memory text strings.
  */
-function retrieveMemories(elderId, queryText, k = 3) {
+function retrieveMemories(elderId, queryText, k = 50) {
     try {
         if (!fs.existsSync(MEMORIES_PATH)) {
             console.warn("Memories file not found at", MEMORIES_PATH);
@@ -24,10 +24,10 @@ function retrieveMemories(elderId, queryText, k = 3) {
         const memories = JSON.parse(data);
 
         const effectiveElderId = elderId || "elder-001";
-        const elderMemories = memories.filter(m => m.elderId === effectiveElderId);
+        const elderMemories = memories.filter(m => m.elderId === effectiveElderId).reverse();
 
         if (elderMemories.length > 0) {
-            return elderMemories.slice(0, k).map(m => m.text);
+            return elderMemories.slice(0, k).map(m => m.text || m.content);
         }
 
         return [];
@@ -37,6 +37,35 @@ function retrieveMemories(elderId, queryText, k = 3) {
     }
 }
 
+/**
+ * Adds a new memory to the store.
+ * @param {Object} memory - The memory object to add.
+ * @returns {boolean} True if successful, false otherwise.
+ */
+function addMemory(memory) {
+    try {
+        let memories = [];
+        if (fs.existsSync(MEMORIES_PATH)) {
+            const data = fs.readFileSync(MEMORIES_PATH, 'utf-8');
+            memories = JSON.parse(data);
+        }
+
+        // Ensure array
+        if (!Array.isArray(memories)) {
+            memories = [];
+        }
+
+        memories.push(memory);
+        fs.writeFileSync(MEMORIES_PATH, JSON.stringify(memories, null, 2), 'utf-8');
+        console.log("✅ Memory added:", memory.id);
+        return true;
+    } catch (error) {
+        console.error("Error adding memory:", error);
+        return false;
+    }
+}
+
 module.exports = {
-    retrieveMemories
+    retrieveMemories,
+    addMemory
 };

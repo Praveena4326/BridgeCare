@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { Input } from "../components/ui/Input"
 import { Modal } from "../components/ui/Modal"
 import { Plus, Image as ImageIcon, Calendar } from "lucide-react"
+import { api } from "../services/api"
 
 interface Memory {
     id: number
@@ -33,17 +34,23 @@ export function MemoryUpload() {
 
     const [newMemory, setNewMemory] = useState<Partial<Memory>>({})
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (newMemory.title && newMemory.content) {
-            setMemories([{
-                id: Date.now(),
-                title: newMemory.title,
-                date: newMemory.date || new Date().toISOString().split('T')[0],
-                content: newMemory.content,
-                image: newMemory.image
-            } as Memory, ...memories])
-            setNewMemory({})
-            setIsModalOpen(false)
+            try {
+                const result = await api.uploadMemory({
+                    title: newMemory.title,
+                    date: newMemory.date || new Date().toISOString().split('T')[0],
+                    content: newMemory.content,
+                    image: newMemory.image
+                });
+
+                setMemories([result.memory, ...memories])
+                setNewMemory({})
+                setIsModalOpen(false)
+            } catch (error) {
+                console.error("Failed to upload memory", error)
+                // Optionally show an error toast
+            }
         }
     }
 

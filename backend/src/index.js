@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { generateBridgeCareReply } = require("./services/gemini.service");
-const { retrieveMemories } = require("./services/rag.service");
+const { generateBridgeCareReply, extractMemories } = require("./services/gemini.service");
+const { retrieveMemories, addMemory } = require("./services/rag.service");
 
 const app = express();
 
@@ -28,8 +28,8 @@ app.post("/voice/chat", async (req, res) => {
   console.log("Elder ID:", elderId);
   console.log("Text received:", text);
 
-  // Retrieve relevant memories for grounding
-  const memories = retrieveMemories(elderId, text, 3);
+  // Retrieve relevant memories for grounding (increase limit to 50)
+  const memories = retrieveMemories(elderId, text, 50);
   console.log("retrieveMemories returned:", memories, "type:", Array.isArray(memories), "length:", memories.length);
 
   try {
@@ -46,6 +46,34 @@ app.post("/voice/chat", async (req, res) => {
       explanationForFamily: aiResponse.explanationForFamily,
       riskLevel: aiResponse.riskLevel,
     });
+
+    // Background process for memory extraction (don't block response)
+    // Only extract if specific trigger phrases are used
+    const lowerText = text.toLowerCase();
+    const triggers = ["do remember", "please remember", "do not forget that", "don't forget that", "remind me that"];
+    const shouldExtract = triggers.some(t => lowerText.includes(t));
+
+    if (shouldExtract) {
+      console.log("📝 Memory trigger detected!");
+      extractMemories(text).then(newMemories => {
+        if (newMemories && newMemories.length > 0) {
+          console.log("🧠 Extracted new memories:", newMemories.length);
+          newMemories.forEach(mem => {
+            // Normalize to match existing schema
+            addMemory({
+              id: `mem-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              elderId: elderId,
+              text: mem.content, // Map 'content' to 'text'
+              tags: ["auto-extracted", mem.title.toLowerCase().replace(/\s+/g, '-')], // Use title as tag
+              date: mem.date
+            });
+          });
+        }
+      }).catch(err => console.error("Memory extraction failed:", err));
+    } else {
+      console.log("Creating memory skipped (no trigger phrase).");
+    }
+
   } catch (error) {
     console.error("Error generating AI reply:", error);
 
@@ -59,4 +87,49 @@ app.post("/voice/chat", async (req, res) => {
       riskLevel: "low",
     });
   }
+});
+
+app.post("/memories", (req, res) => {
+  const memory = req.body;
+  if (!memory || !memory.title || !memory.content) {
+    return res.status(400).json({ error: "Invalid memory format" });
+  }
+
+  // Add ID if missing
+  if (!memory.id) memory.id = Date.now();
+  if (!memory.elderId) memory.elderId = "elder-001"; // Default for hackathon
+
+  const success = addMemory(memory);
+  if (success) {
+    res.json({ status: "success", memory });
+  } else {
+    res.status(500).json({ error: "Failed to add memory" });
+  }
+});
+
+app.get("/family/dashboard/:elderId", (req, res) => {
+  const { elderId } = req.params;
+
+  // Mock data for now, eventually this would come from a real database
+  res.json({
+    elderId,
+    mood: "Stable",
+    activityLevel: "High",
+    nextMeds: "2:00 PM Blood Pressure",
+    deviceStatus: { online: true, battery: 85 },
+    esiHistory: [
+      { day: "Mon", mood: 8 },
+      { day: "Tue", mood: 7 },
+      { day: "Wed", mood: 9 },
+      { day: "Thu", mood: 6 },
+      { day: "Fri", mood: 8 },
+      { day: "Sat", mood: 9 },
+      { day: "Sun", mood: 9 },
+    ],
+    alerts: [
+      { type: "warning", title: "Irregular Sleep Pattern", message: "Detected last night at 3:00 AM", time: "3:00 AM" },
+      { type: "info", title: "Morning Interaction", message: "Chatted happily for 15 mins", time: "9:00 AM" },
+      { type: "success", title: "Medication Taken", message: "Confirmed at 9:00 AM", time: "9:00 AM" }
+    ]
+  });
 });

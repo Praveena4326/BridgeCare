@@ -11,18 +11,31 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts"
+import { api, type FamilyDashboardData } from "../services/api"
+import { useEffect, useState } from "react"
 
-const data = [
-    { day: "Mon", mood: 8 },
-    { day: "Tue", mood: 7 },
-    { day: "Wed", mood: 9 },
-    { day: "Thu", mood: 6 },
-    { day: "Fri", mood: 8 },
-    { day: "Sat", mood: 9 },
-    { day: "Sun", mood: 9 },
-]
 
 export function FamilyDashboard() {
+    const [dashboardData, setDashboardData] = useState<FamilyDashboardData | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const data = await api.getFamilyData("elder-001")
+                setDashboardData(data)
+            } catch (error) {
+                console.error("Failed to load family data", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadData()
+    }, [])
+
+    if (loading) return <div className="p-8">Loading dashboard...</div>
+    if (!dashboardData) return <div className="p-8">Failed to load dashboard data.</div>
+
     return (
         <div className="flex bg-neutral-50 h-[calc(100vh-64px)]">
             <div className="hidden md:block h-full">
@@ -46,7 +59,7 @@ export function FamilyDashboard() {
                                 <CardTitle className="text-sm font-medium text-neutral-500">Current Mood</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-neutral-900">Stable</div>
+                                <div className="text-2xl font-bold text-neutral-900">{dashboardData.mood}</div>
                                 <p className="text-xs text-green-600 flex items-center mt-1">
                                     <CheckCircle className="h-3 w-3 mr-1" />
                                     Updating live
@@ -58,7 +71,7 @@ export function FamilyDashboard() {
                                 <CardTitle className="text-sm font-medium text-neutral-500">Activity Level</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-neutral-900">High</div>
+                                <div className="text-2xl font-bold text-neutral-900">{dashboardData.activityLevel}</div>
                                 <p className="text-xs text-neutral-500 mt-1">Last active 5m ago</p>
                             </CardContent>
                         </Card>
@@ -67,8 +80,8 @@ export function FamilyDashboard() {
                                 <CardTitle className="text-sm font-medium text-neutral-500">Next Meds</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-neutral-900">2:00 PM</div>
-                                <p className="text-xs text-neutral-500 mt-1">Blood Pressure</p>
+                                <div className="text-2xl font-bold text-neutral-900">{dashboardData.nextMeds.split(' ').slice(0, 2).join(' ')}</div>
+                                <p className="text-xs text-neutral-500 mt-1">{dashboardData.nextMeds.split(' ').slice(2).join(' ')}</p>
                             </CardContent>
                         </Card>
                         <Card>
@@ -76,10 +89,10 @@ export function FamilyDashboard() {
                                 <CardTitle className="text-sm font-medium text-neutral-500">Device Status</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-neutral-900">Online</div>
+                                <div className="text-2xl font-bold text-neutral-900">{dashboardData.deviceStatus.online ? "Online" : "Offline"}</div>
                                 <p className="text-xs text-green-600 flex items-center mt-1">
                                     <Smartphone className="h-3 w-3 mr-1" />
-                                    Battery 85%
+                                    Battery {dashboardData.deviceStatus.battery}%
                                 </p>
                             </CardContent>
                         </Card>
@@ -95,7 +108,7 @@ export function FamilyDashboard() {
                             <CardContent>
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={data}>
+                                        <LineChart data={dashboardData.esiHistory}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                             <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                                             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} domain={[0, 10]} />
@@ -124,33 +137,25 @@ export function FamilyDashboard() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div className="flex items-start space-x-3 rounded-lg bg-orange-50 p-3">
-                                        <AlertTriangle className="mt-0.5 h-5 w-5 text-orange-500 shrink-0" />
-                                        <div>
-                                            <p className="text-sm font-medium text-orange-800">Irregular Sleep Pattern</p>
-                                            <p className="text-xs text-orange-600">Detected last night at 3:00 AM</p>
+                                    {dashboardData.alerts.map((alert, i) => (
+                                        <div key={i} className={`flex items-start space-x-3 p-2 rounded-lg ${alert.type === 'warning' ? 'bg-orange-50' : ''}`}>
+                                            {alert.type === 'warning' && <AlertTriangle className="mt-0.5 h-5 w-5 text-orange-500 shrink-0" />}
+                                            {alert.type === 'info' && (
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 shrink-0">
+                                                    <Clock className="h-4 w-4" />
+                                                </div>
+                                            )}
+                                            {alert.type === 'success' && (
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 shrink-0">
+                                                    <CheckCircle className="h-4 w-4" />
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className={`text-sm font-medium ${alert.type === 'warning' ? 'text-orange-800' : 'text-neutral-900'}`}>{alert.title}</p>
+                                                <p className={`text-xs ${alert.type === 'warning' ? 'text-orange-600' : 'text-neutral-500'}`}>{alert.message}</p>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div className="flex items-start space-x-3 p-2">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 shrink-0">
-                                            <Clock className="h-4 w-4" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-neutral-900">Morning Interaction</p>
-                                            <p className="text-xs text-neutral-500">Chatted happily for 15 mins</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start space-x-3 p-2">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 shrink-0">
-                                            <CheckCircle className="h-4 w-4" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-neutral-900">Medication Taken</p>
-                                            <p className="text-xs text-neutral-500">Confirmed at 9:00 AM</p>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                                 <Button variant="outline" className="w-full mt-4" size="sm">View Full History</Button>
                             </CardContent>

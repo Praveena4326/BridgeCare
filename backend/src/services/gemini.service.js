@@ -7,7 +7,7 @@
  */
 async function generateBridgeCareReply({ userText, memories }) {
     const apiKey = process.env.GEMINI_API_KEY;
-    const modelId = "gemini-3-flash-preview";
+    const modelId = "gemini-2.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
 
     const prompt = `
@@ -77,6 +77,68 @@ async function generateBridgeCareReply({ userText, memories }) {
     }
 }
 
+/**
+ * Extracts new memories/facts from the user's text.
+ * @param {string} userText
+ * @returns {Promise<Array<Object>>}
+ */
+async function extractMemories(userText) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const modelId = "gemini-2.5-flash"; // Use a fast model for this
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+
+    const prompt = `
+    You are a helpful assistant that extracts personal facts and memories from text.
+    Analyze the following USER INPUT and extract any new, permanent facts about the user's life, preferences, family, or history.
+    
+    CRITERIA:
+    - Only extract EXPLICIT facts (e.g., "I love roses", "My daughter is Sarah").
+    - Ignore transient states (e.g., "I am hungry", "I am going to the store").
+    - Ignore questions (e.g., "What time is it?").
+    - If no relevant facts are found, return an empty array [].
+    
+    USER INPUT: "${userText}"
+    
+    OUTPUT FORMAT:
+    Return ONLY a raw JSON array of objects, where each object has:
+    - "title": A short title for the memory.
+    - "content": The memory content.
+    - "date": Today's date (YYYY-MM-DD).
+    
+    Example:
+    [
+      { "title": "Favorite Flower", "content": "The user loves roses.", "date": "2024-01-01" },
+      { "title": "Daughter's Name", "content": "The user's daughter is named Sarah.", "date": "2024-01-01" }
+    ]
+    `;
+
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json",
+        },
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) return [];
+
+        const result = await response.json();
+        const text = result.candidates[0].content.parts[0].text;
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Memory Extraction Error:", error.message);
+        return [];
+    }
+}
+
 module.exports = {
     generateBridgeCareReply,
+    extractMemories,
 };

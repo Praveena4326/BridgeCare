@@ -1,9 +1,17 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "../components/ui/Button"
 // import { Card } from "../components/ui/Card"
 import { Mic, Send, Volume2, User, Bot } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "../lib/utils"
+import { api, type VoiceChatResponse } from "../services/api"
+
+declare global {
+    interface Window {
+        webkitSpeechRecognition: any;
+        SpeechRecognition: any;
+    }
+}
 
 interface Message {
     id: number
@@ -23,8 +31,11 @@ export function ElderDashboard() {
     ])
     const [inputValue, setInputValue] = useState("")
     const [isListening, setIsListening] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const recognitionRef = useRef<any>(null)
+    const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!inputValue.trim()) return
 
         const newMessage: Message = {
@@ -36,27 +47,106 @@ export function ElderDashboard() {
 
         setMessages((prev) => [...prev, newMessage])
         setInputValue("")
+        setIsLoading(true)
 
-        // Simulate AI response
-        setTimeout(() => {
+        try {
+            const data: VoiceChatResponse = await api.sendVoiceChat("elder-001", newMessage.text)
+
             const aiResponse: Message = {
                 id: Date.now() + 1,
-                text: "I'm glad to hear from you. Have you taken your morning medication yet?",
+                text: data.replyText,
                 sender: "ai",
                 timestamp: new Date(),
             }
             setMessages((prev) => [...prev, aiResponse])
-        }, 1500)
+        } catch (error) {
+            console.error("Failed to get response:", error)
+            const errorResponse: Message = {
+                id: Date.now() + 1,
+                text: "I'm having a little trouble hearing you. Could you say that again?",
+                sender: "ai",
+                timestamp: new Date(),
+            }
+            setMessages((prev) => [...prev, errorResponse])
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    const toggleListening = () => {
-        setIsListening(!isListening)
-        if (!isListening) {
-            // Simulate speech recognition
-            setTimeout(() => {
-                setInputValue("I am feeling great today, thank you.")
+    // --- Speech Recognition Setup ---
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition()
+            recognition.lang = "en-US"
+            recognition.interimResults = true
+            recognition.continuous = true // Keep listening until silence timeout
+
+            recognition.onstart = () => {
+                // Reset silence timer on start
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+                silenceTimerRef.current = setTimeout(() => {
+                    recognition.stop()
+                }, 12000) // 12 seconds
+            }
+
+            recognition.onresult = (event: any) => {
+                // Reset silence timer on user speech
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+                silenceTimerRef.current = setTimeout(() => {
+                    recognition.stop()
+                }, 12000) // 12 seconds
+
+                let fullText = ""
+                for (let i = 0; i < event.results.length; i++) {
+                    fullText += event.results[i][0].transcript
+                }
+                setInputValue(fullText)
+            }
+
+            recognition.onend = () => {
                 setIsListening(false)
-            }, 2000)
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+            }
+
+            recognition.onerror = (event: any) => {
+                console.error("Speech recognition error", event.error)
+                setIsListening(false)
+                if (event.error === 'not-allowed') {
+                    alert("Microphone access denied. Please check your browser settings.")
+                } else if (event.error === 'audio-capture') {
+                    alert("No microphone found or audio capture failed. Ensure your microphone is plugged in.")
+                }
+            }
+
+            recognitionRef.current = recognition
+        }
+    }, [])
+
+    const toggleListening = async () => {
+        if (!recognitionRef.current) {
+            alert("Speech recognition not supported in this browser.")
+            return
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop()
+            setIsListening(false)
+            return
+        }
+
+        // Request microphone permission explicitly
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // If we get here, permission is granted
+            setInputValue("")
+            setIsListening(true)
+            recognitionRef.current.start()
+        } catch (err) {
+            console.error("Microphone permission denied:", err);
+            alert("Please allow microphone access to use voice chat.");
+            setIsListening(false);
         }
     }
 
@@ -154,7 +244,7 @@ export function ElderDashboard() {
                             <Button
                                 size="icon"
                                 onClick={handleSend}
-                                disabled={!inputValue.trim()}
+                                disabled={!inputValue.trim() || isLoading}
                                 className="h-14 w-14 shrink-0 rounded-full bg-primary-600 text-white shadow-lg hover:bg-primary-700 disabled:opacity-50"
                             >
                                 <Send className="h-6 w-6 ml-1" />

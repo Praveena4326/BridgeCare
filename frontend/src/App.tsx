@@ -5,7 +5,7 @@ import { ElderDashboard } from "./pages/ElderDashboard"
 import { FamilyDashboard } from "./pages/FamilyDashboard"
 import { MemoryUpload } from "./pages/MemoryUpload"
 import { AboutPage } from "./pages/AboutPage"
-import VoiceChat from "./components/voicechat"
+import VoiceChat from "./components/VoiceChat"
 
 function App() {
   return (
